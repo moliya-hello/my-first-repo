@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tlias智能学习辅助系统</title>
+  <style>
+    /* 重置页面默认边距 */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* 顶部导航栏容器 */
+    .header-nav {
+      background-color: #4e5969;       /* 深灰蓝背景 */
+      padding: 0 24px;                 /* 左右内边距 */
+      height: 60px;                    /* 导航栏高度 */
+      display: flex;                   /* 启用 Flex 布局 */
+      justify-content: space-between;  /* 两端对齐：左侧靠左，右侧靠右 */
+      align-items: center;             /* 垂直方向居中对齐 */
+      border-bottom: 1px solid #e5e6eb;/* 底部分割线，提升层次感 */
+    }
+
+    /* 系统标题样式 */
+    .header-title {
+      font-size: 20px;
+      font-weight: 900;                /* 特别加粗 */
+      color: #ffffff;                  /* 白色文字，与深色背景形成对比 */
+      letter-spacing: 0.5px;
+      font-family: "楷体", KaiTi, STKaiti, serif;
+    }
+
+    /* 退出登录超链接样式 */
+    .logout-btn {
+      color: #e5e6eb;
+      text-decoration: none;           /* 去除默认下划线 */
+      font-size: 14px;
+      font-weight: 500;
+      padding: 6px 12px;               /* 扩大点击热区 */
+      border-radius: 4px;
+      transition: color 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      color: #f53f3f;                  /* 悬浮提示危险色（退出） */
+      text-decoration: underline;
+    }
+
+    /* ===== 搜索表单区域 ===== */
+    .search-form {
+      display: flex;                   /* 表单项与按钮水平排成一行 */
+      justify-content: space-between;  /* 左侧靠左，右侧靠右 */
+      align-items: center;             /* 垂直方向居中对齐 */
+      flex-wrap: wrap;                 /* 窗口变窄时自动换行，不会挤成一团 */
+      gap: 16px;                       /* 各个表单项之间的间距 */
+      padding: 20px 24px;
+      background-color: #ffffff;
+      border-bottom: 1px solid #e5e6eb;
+    }
+
+    /* 单个表单项：标签 + 控件，也用 flex 排成一行 */
+    .form-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;                        /* 标签与输入框之间的间距 */
+    }
+
+    .form-item label {
+      font-size: 14px;
+      color: #4e5969;
+      white-space: nowrap;             /* 标签文字不换行 */
+    }
+
+    /* 输入框与下拉框统一外观 */
+    .form-item input,
+    .form-item select {
+      height: 34px;
+      width: 160px;
+      padding: 0 10px;
+      font-size: 14px;
+      color: #1d2129;
+      border: 1px solid #c9cdd4;
+      border-radius: 4px;
+      outline: none;                   /* 去掉浏览器默认的焦点外框 */
+      background-color: #ffffff;
+      transition: border-color 0.3s ease;
+    }
+
+    /* 获得焦点时高亮边框，提示用户当前正在填哪一项 */
+    .form-item input:focus,
+    .form-item select:focus {
+      border-color: #4e5969;
+    }
+
+    /* 按钮公共样式 */
+    .search-form button {
+      height: 34px;
+      padding: 0 20px;
+      font-size: 14px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      cursor: pointer;                 /* 鼠标移上去变成小手 */
+      transition: background-color 0.3s ease;
+    }
+
+    /* 查询按钮：主要操作，用实心深色 */
+    .btn-search {
+      background-color: #4e5969;
+      color: #ffffff;
+    }
+
+    .btn-search:hover {
+      background-color: #3a4552;
+    }
+
+    /* 清空按钮：次要操作，用描边浅色 */
+    .btn-reset {
+      background-color: #ffffff;
+      color: #4e5969;
+      border-color: #c9cdd4;
+    }
+
+    .btn-reset:hover {
+      background-color: #f2f3f5;
+    }
+
+    /* ===== 表格展示区 ===== */
+
+    /* 表格外层容器：负责表格与页面边缘之间的留白 */
+    .table-area {
+      padding: 0 24px 24px;            /* 上0 左右24px 下24px，上方紧贴搜索表单 */
+    }
+
+    /* 表格本体 */
+    .data-table {
+      width: 100%;                     /* 撑满父容器宽度 */
+      border-collapse: collapse;       /* 合并相邻单元格的边框，避免出现双线 */
+      background-color: #ffffff;       /* 白色底，不受页面背景影响 */
+      font-size: 14px;                 /* 表格内文字统一字号 */
+    }
+
+    /* 表头(th)与数据单元格(td)的公共样式 */
+    .data-table th,
+    .data-table td {
+      padding: 12px 16px;              /* 单元格内边距，撑开行高让表格更透气 */
+      text-align: center;              /* 内容水平居中 */
+      border: 1px solid #e5e6eb;       /* 四边都画线，配合 border-collapse 形成完整表格线 */
+    }
+
+    /* 表头行：只作用于 thead 里的 th，与数据行区分开 */
+    .data-table thead th {
+      background-color: #f2f3f5;       /* 浅灰底，视觉上把表头和数据分层 */
+      color: #1d2129;                  /* 近黑文字，比数据行更醒目 */
+      font-weight: 600;                /* 半加粗（th 默认就是粗体，这里统一一下字重） */
+      white-space: nowrap;             /* 表头文字不换行，避免"最后操作时间"被折成两行 */
+    }
+
+    /* 鼠标悬浮到某一行时高亮，方便横向看数据不串行 */
+    .data-table tbody tr:hover {
+      background-color: #f7f8fa;       /* 比表头更浅的灰，只作提示不抢眼 */
+    }
+
+    /* 头像：固定大小的小图，裁成圆形 */
+    .avatar {
+      width: 40px;                     /* 固定宽度，保证每行头像大小一致 */
+      height: 40px;                    /* 固定高度，与宽度相等才能裁成正圆 */
+      border-radius: 50%;              /* 圆角设为一半宽高就变成圆形 */
+      object-fit: cover;               /* 图片按比例裁剪填满，不会被拉变形 */
+      vertical-align: middle;          /* 按自身中心对齐，消除图片下方的基线空隙 */
+    }
+
+    /* 操作列两个小按钮的公共样式 */
+    .btn-op {
+      padding: 4px 12px;               /* 比搜索区按钮小一圈，适合放在单元格里 */
+      margin: 0 4px;                   /* 左右留白，两个按钮之间不挨在一起 */
+      font-size: 13px;                 /* 略小于表格正文 */
+      color: #ffffff;                  /* 白字，配下面的深色底 */
+      border: none;                    /* 去掉按钮默认的立体边框 */
+      border-radius: 4px;              /* 小圆角 */
+      cursor: pointer;                 /* 鼠标移上去变成小手，提示可点击 */
+      transition: background-color 0.3s ease; /* 背景色变化用 0.3 秒过渡，不生硬 */
+    }
+
+    /* 编辑按钮：普通操作，用与导航栏一致的深灰蓝 */
+    .btn-edit {
+      background-color: #4e5969;
+    }
+
+    /* 编辑按钮悬浮态：加深一档，给出可点击的反馈 */
+    .btn-edit:hover {
+      background-color: #3a4552;
+    }
+
+    /* 删除按钮 */
+    .btn-delete {
+      background-color: #f53f3f;       /* 删除是危险操作，用红色提醒 */
+    }
+
+    /* 删除按钮悬浮态：同样加深一档 */
+    .btn-delete:hover {
+      background-color: #cb2634;
+    }
+
+
+    /* ===== 页脚版权区域 ===== */
+    .footer {
+      background-color: #4e5969;       /* 灰色背景，与顶部导航栏呼应，首尾统一 */
+      color: #ffffff;                  /* 白色文字，在灰底上清晰可读 */
+      text-align: center;              /* 两行文字都水平居中 */
+      padding: 20px 24px;              /* 上下留白，让页脚不显局促 */
+      font-size: 13px;                 /* 比正文略小，弱化次要信息 */
+      line-height: 1.8;                /* 行高放大，两行之间不挤在一起 */
+      margin-top: 30px;                     /* 顶部留白，让页脚与表格之间有间隔 */
+    }
+
+  </style>
+</head>
+<body>
+  <!-- 顶部导航栏：系统标题 + 退出登录按钮 -->
+  <header class="header-nav">
+    <div class="header-title">Tlias智能学习辅助系统</div>
+    <a href="#logout" class="logout-btn">退出登录</a>
+  </header>
+
+  <!-- 搜索表单区域：三个表单项 + 两个操作按钮，水平排成一行 -->
+  <form class="search-form" action="#" method="get">
+
+    <div class="form-item">
+      <label for="name">姓名</label>
+      <input type="text" id="name" name="name" placeholder="请输入姓名">
+    </div>
+
+    <div class="form-item">
+      <label for="gender">性别</label>
+      <select id="gender" name="gender">
+        <option value="">请选择</option>
+        <option value="1">男</option>
+        <option value="2">女</option>
+      </select>
+    </div>
+
+    <div class="form-item">
+      <label for="job">职位</label>
+      <select id="job" name="job">
+        <option value="">请选择</option>
+        <option value="1">班主任</option>
+        <option value="2">讲师</option>
+        <option value="3">学工主管</option>
+        <option value="4">教研主管</option>
+        <option value="5">咨询师</option>
+      </select>
+    </div>
+
+    <!-- submit：提交表单；reset：把所有表单项恢复到默认值 -->
+    <button type="submit" class="btn-search">查询</button>
+    <button type="reset" class="btn-reset">清空</button>
+
+  </form>
+
+  <!-- 表格展示区：展示员工列表数据 -->
+  <div class="table-area">
+    <table class="data-table">
+
+      <!-- thead：表头，定义每一列的标题 -->
+      <thead>
+        <tr>
+          <th>姓名</th>
+          <th>性别</th>
+          <th>头像</th>
+          <th>职位</th>
+          <th>入职日期</th>
+          <th>最后操作时间</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+
+      <!-- tbody：表格主体，每个 tr 是一条员工数据 -->
+      <tbody>
+        <tr>
+          <td>令狐冲</td>
+          <td>男</td>
+          <td><img src="img/2.jpg" alt="令狐冲的头像" class="avatar"></td>
+          <td>讲师</td>
+          <td>2019-03-15</td>
+          <td>2024-06-12 10:25:36</td>
+          <td>
+            <button type="button" class="btn-op btn-edit">编辑</button>
+            <button type="button" class="btn-op btn-delete">删除</button>
+          </td>
+        </tr>
+
+        <tr>
+          <td>任盈盈</td>
+          <td>女</td>
+          <td><img src="img/3.jpg" alt="任盈盈的头像" class="avatar"></td>
+          <td>班主任</td>
+          <td>2020-07-01</td>
+          <td>2024-06-11 16:48:02</td>
+          <td>
+            <button type="button" class="btn-op btn-edit">编辑</button>
+            <button type="button" class="btn-op btn-delete">删除</button>
+          </td>
+        </tr>
+
+        <tr>
+          <td>岳不群</td>
+          <td>男</td>
+          <td><img src="img/4.jpg" alt="岳不群的头像" class="avatar"></td>
+          <td>教研主管</td>
+          <td>2015-09-08</td>
+          <td>2024-06-10 09:13:47</td>
+          <td>
+            <button type="button" class="btn-op btn-edit">编辑</button>
+            <button type="button" class="btn-op btn-delete">删除</button>
+          </td>
+        </tr>
+
+        <tr>
+          <td>林平之</td>
+          <td>男</td>
+          <td><img src="img/5.jpg" alt="林平之的头像" class="avatar"></td>
+          <td>讲师</td>
+          <td>2021-04-20</td>
+          <td>2024-06-09 14:02:19</td>
+          <td>
+            <button type="button" class="btn-op btn-edit">编辑</button>
+            <button type="button" class="btn-op btn-delete">删除</button>
+          </td>
+        </tr>
+
+        <tr>
+          <td>宁中则</td>
+          <td>女</td>
+          <td><img src="img/2.jpg" alt="宁中则的头像" class="avatar"></td>
+          <td>班主任</td>
+          <td>2016-02-18</td>
+          <td>2024-06-08 11:37:55</td>
+          <td>
+            <button type="button" class="btn-op btn-edit">编辑</button>
+            <button type="button" class="btn-op btn-delete">删除</button>
+          </td>
+        </tr>
+
+        <tr>
+          <td>向问天</td>
+          <td>男</td>
+          <td><img src="img/3.jpg" alt="向问天的头像" class="avatar"></td>
+          <td>学工主管</td>
+          <td>2018-11-06</td>
+          <td>2024-06-07 17:20:41</td>
+          <td>
+            <button type="button" class="btn-op btn-edit">编辑</button>
+            <button type="button" class="btn-op btn-delete">删除</button>
+          </td>
+        </tr>
+
+        <tr>
+          <td>仪琳</td>
+          <td>女</td>
+          <td><img src="img/4.jpg" alt="仪琳的头像" class="avatar"></td>
+          <td>咨询师</td>
+          <td>2022-08-23</td>
+          <td>2024-06-06 08:55:13</td>
+          <td>
+            <button type="button" class="btn-op btn-edit">编辑</button>
+            <button type="button" class="btn-op btn-delete">删除</button>
+          </td>
+        </tr>
+
+        <tr>
+          <td>左冷禅</td>
+          <td>男</td>
+          <td><img src="img/5.jpg" alt="左冷禅的头像" class="avatar"></td>
+          <td>教研主管</td>
+          <td>2014-05-12</td>
+          <td>2024-06-05 19:44:08</td>
+          <td>
+            <button type="button" class="btn-op btn-edit">编辑</button>
+            <button type="button" class="btn-op btn-delete">删除</button>
+          </td>
+        </tr>
+      </tbody>
+
+    </table>
+  </div>
+
+  <!-- 页脚版权区域：公司全称 + 版权信息 -->
+  <footer class="footer">
+    <p>江苏传智播客教育科技股份有限公司</p>
+    <p>版权所有 Copyright 2006-2024 All Rights Reserved</p>
+  </footer>
+
+</body>
+</html>

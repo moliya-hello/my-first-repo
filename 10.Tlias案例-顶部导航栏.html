@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tlias智能学习辅助系统</title>
+  <style>
+    /* 重置页面默认边距 */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* 顶部导航栏容器 */
+    .header-nav {
+      background-color: #4e5969;       /* 深灰蓝背景 */
+      padding: 0 24px;                 /* 左右内边距 */
+      height: 60px;                    /* 导航栏高度 */
+      display: flex;                   /* 启用 Flex 布局 */
+      justify-content: space-between;  /* 两端对齐：左侧靠左，右侧靠右 */
+      align-items: center;             /* 垂直方向居中对齐 */
+      border-bottom: 1px solid #e5e6eb;/* 底部分割线，提升层次感 */
+    }
+
+    /* 系统标题样式 */
+    .header-title {
+      font-size: 20px;
+      font-weight: 900;                /* 特别加粗 */
+      color: #ffffff;                  /* 白色文字，与深色背景形成对比 */
+      letter-spacing: 0.5px;
+      font-family: "楷体", KaiTi, STKaiti, serif;
+    }
+
+    /* 退出登录超链接样式 */
+    .logout-btn {
+      color: #e5e6eb;
+      text-decoration: none;           /* 去除默认下划线 */
+      font-size: 14px;
+      font-weight: 500;
+      padding: 6px 12px;               /* 扩大点击热区 */
+      border-radius: 4px;
+      transition: color 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      color: #f53f3f;                  /* 悬浮提示危险色（退出） */
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header-nav">
+    <div class="header-title">Tlias智能学习辅助系统</div>
+    <a href="#logout" class="logout-btn">退出登录</a>
+  </header>
+
+</body>
+</html>
