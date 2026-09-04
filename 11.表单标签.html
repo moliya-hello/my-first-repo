@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>表单标签</title>
+</head>
+<body>
+    <!-- form表单
+        1. action属性：表单提交到的url地址
+        2. method属性：表单提交方式，get或post
+            get：提交数据时，数据会以url参数形式拼接在url后面
+                1. 数据会以url参数形式拼接在url后面
+                2. 数据量有限制，通常不超过2KB
+            post：提交数据时，数据会以表单数据形式发送给服务器
+                post方式提交数据，数据不会以url参数形式拼接在url后面
+                post方式提交数据，数据会以表单数据形式发送给服务器
+
+        3. input标签：表单输入项
+        4. input标签的type属性：
+            text：文本输入框
+            number：数字输入框
+            submit：提交按钮
+        5. input标签的name属性：表单数据对应的键名
+        6. input标签的value属性：表单数据对应的键值
+
+    -->
+    <form action="/save" method="post">
+        姓名：<input type="text" name="name"><br><br>
+        年龄：<input type="number" name="age"><br></br>
+        时间：<input type="datetime-local" name="time"><br><br>
+        密码：<input type="password" name="password"><br><br>
+        性别：<label ><input type="radio" name="sex" value="1">男</label>
+             <label ><input type="radio" name="sex" value="0">女</label><br><br> 
+        爱好：<input type="checkbox" name="hobby" value="1">打篮球
+             <input type="checkbox" name="hobby" value="2">踢足球
+             <input type="checkbox" name="hobby" value="3">打羽毛球<br><br>
+        图像：<input type="file" name="image"><br><br>
+        城市：<select name="city">
+        <option value="">------请选择城市------</option>
+        <option value="1">北京</option>
+        <option value="2">上海</option>
+        <option value="3">广州</option>
+            </select><br><br>
+        描述：<textarea name="desc" cols="30" rows="10"></textarea><br><br>
+        <input type="reset" value="重置">
+        <input type="button" value="按钮">
+        <input type="submit" value="提交">
+    </form><br><br>
+</body>
+</html>
